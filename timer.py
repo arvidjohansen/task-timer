@@ -48,6 +48,14 @@ def _get_finish_text():
     """    
     if y > 9 and x > 58:
         return txt
+    
+    txt = """
+       ╔╦╗┬┌┬┐┌─┐  ┬┌─┐  ┬ ┬┌─┐
+        ║ ││││├┤   │└─┐  │ │├─┘
+        ╩ ┴┴ ┴└─┘  ┴└─┘  └─┘┴  
+    """
+    if y > 4 and x > 25:
+        return txt
 
     return 'Time is up!'
 
@@ -88,10 +96,11 @@ def start_countdown(seconds):
     clear_terminal()
     if DEBUG:
         seconds = int(seconds/60)
-    for i in tqdm(range(seconds),
+    for i in tqdm(
+        range(seconds),
         desc='Progress',
-        bar_format='{l_bar}{bar}{remaining}',
-        ):
+        bar_format='{l_bar}{bar}{remaining}'):
+
         sleep(1)
 
 def start_countdown_v2(seconds):
@@ -105,7 +114,6 @@ def start_countdown_v2(seconds):
         prog += '>'
         whspace = ' ' * remaining
         end = f'|{time_remaining_str(remaining)}|'
-        #sys.stdout.write(f'\r{prog}{whspace}{end}')
         sys.stdout.write(f'{prog}{whspace}{end}')
         sys.stdout.flush()
         count += 1
