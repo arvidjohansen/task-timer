@@ -5,6 +5,7 @@ from tqdm import tqdm
 from terminalsize import get_terminal_size
 
 DEFAULT_DURATION_MINUTES = 25
+DEBUG = False
 
 def set_timer():
     """ Sets the timer provided from args if possible,
@@ -17,7 +18,7 @@ def set_timer():
         print(f'Timer set to {DEFAULT_DURATION_MINUTES} minutes')
     return DEFAULT_DURATION_MINUTES
 
-def _get_finish_text(x, y):
+def _get_finish_text():
     """ Returns suitable text based on window-size """
     txt = """
     /        |/      |/  \     /  |/        |      /      | /      \       /  |  /  |/       \ 
@@ -31,9 +32,24 @@ def _get_finish_text(x, y):
     Press CTRL + C to exit
     """
     x, y = get_terminal_size()
-    if y < 10:
-        txt = 'Time is up!'
-    return txt
+
+    if y > 9 and x > 94:
+        return txt
+    
+    txt = """
+ _______  _                       _                        
+(__ _ __)(_)             ____    (_) ____                  
+   (_)    _   __   __   (____)    _ (____)    _   _  ____  
+   (_)   (_) (__)_(__) (_)_(_)   (_)(_)__    (_) (_)(____) 
+   (_)   (_)(_) (_) (_)(__)__    (_) _(__)   (_)_(_)(_)_(_)
+   (_)   (_)(_) (_) (_) (____)   (_)(____)    (___) (____) 
+                                                    (_)    
+                                                    (_)
+    """    
+    if y > 9 and x > 58:
+        return txt
+
+    return 'Time is up!'
 
 def _finish_flash():
     """ Flashes finish message on screen """
@@ -60,25 +76,48 @@ def clear_terminal():
     try: os.system('clear'); return # Linux / Mac
     except: pass
 
+def time_remaining_str(sec):
+    """ Returns a string containing how many min
+    and sec remining e.g: 1m 23s """
+    m = int(sec / 60)
+    s = sec % 60
+    return f'{m}m {s}s'
+
 def start_countdown(seconds):
-    #print('Starting countdown... See you in {seconds} seconds!')
+    """ Starts countdown using tqdm progress bars """
     clear_terminal()
+    if DEBUG:
+        seconds = int(seconds/60)
+    for i in tqdm(range(seconds),
+        desc='Progress',
+        bar_format='{l_bar}{bar}{remaining}',
+        ):
+        sleep(1)
+
+def start_countdown_v2(seconds):
+    """ Starts countdown using no external modules """
+    clear_terminal()
+    remaining = seconds
+    count = 0
     for i in range(seconds):
-        sys.stdout.write("\r{0}>".format("="*i))
+        clear_terminal()
+        prog = '=' * count
+        prog += '>'
+        whspace = ' ' * remaining
+        end = f'|{time_remaining_str(remaining)}|'
+        #sys.stdout.write(f'\r{prog}{whspace}{end}')
+        sys.stdout.write(f'{prog}{whspace}{end}')
         sys.stdout.flush()
-        sleep(0.5)
-    """
-    for i in tqdm(range(seconds*10)):
-        #print(get_terminal_size())
-        sleep(0.1)
-    """
+        count += 1
+        remaining -= 1
+        sleep(1)
+    
 
-
-
-minutes = set_timer()
-seconds = minutes * 60
-start_countdown(seconds)
-finished()
+if __name__ == '__main__':
+    minutes = set_timer()
+    seconds = minutes * 60
+    start_countdown_v2(seconds)
+    finished()
 
 
 
